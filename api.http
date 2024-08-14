@@ -1,2 +1,13 @@
-### Obtener todos
-GET http://localhost:5000/api/
+### Obtener Bienvenida
+GET http://localhost:5000/api
+
+### Obtener TODOs
+GET http://localhost:5000/api/todos
+
+### Postear TODO
+POST http://localhost:5000/api/todos
+Content-Type: application/json
+
+{
+    "Test": "Test todo app"
+}

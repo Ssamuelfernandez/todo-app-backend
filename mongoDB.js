@@ -16,11 +16,13 @@ const client = new MongoClient(uri, {
     try {
   
       await client.connect();
+      console.log("Conected to MongoDB")
       const db = client.db('todo-app');
       const todosCollection = db.collection('todos');
       return todosCollection;
   
     } catch (error) {
+      console.error("Error connecting to database");      
       console.error(error);
       await client.close();
     }

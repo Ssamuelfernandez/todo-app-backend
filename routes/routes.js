@@ -1,7 +1,7 @@
 import { Router } from 'express'
+import { ToDoController } from '../controllers/todoController.js'
 
 export const todoRouter = Router()
 
-todoRouter.get("/", (req, res) => {
-    res.status(200).json({message: "Test back todo app"})
-})
+todoRouter.get("/", ToDoController.getWelcome)
+todoRouter.get("/todos",ToDoController.getToDos)
