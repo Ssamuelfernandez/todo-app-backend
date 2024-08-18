@@ -3,40 +3,36 @@ import { ObjectId } from "mongodb";
 
 export class todoModel {
 
-    //Aqui se manejan y registran errores relacionados con las operaciones de base de datos y
-    //lanzar errores especificos
-
     static async getToDos() {
         try {
             const todosCollection = await connectToDatabase();
             return await todosCollection.find({}).toArray();
         } catch (error) {
             console.error('Error retrieving TODOs:', error);
-            throw new Error('Could not retrieve TODOs');
+            throw new Error('Database error');
         }
     }
 
     static async getToDosById(id) {
-        
+        // Validar si el ID proporcionado es un ObjectId válido
+        if (!ObjectId.isValid(id)) { throw new Error('Invalid ObjectId'); }
+
+        // Convertir el ID en un ObjectId de MongoDB
+        const objectId = ObjectId.createFromHexString(id);
+
         try {
             const todosCollection = await connectToDatabase();
-
-            // Validar si el ID proporcionado es un ObjectId válido
-            if (!ObjectId.isValid(id)) { throw new Error('Invalid ObjectId'); }
-
-            // Convertir el ID en un ObjectId de MongoDB
-            const objectId = ObjectId.createFromHexString(id);
 
             // Buscar el documento en la colección usando el ObjectId
             const todo = await todosCollection.findOne({ _id: objectId });
 
             // Verificar si se encontró el documento
-            if (!todo) { throw new Error('TODO not found'); }
+            if (!todo) { return null; }
 
             return todo;
         } catch (error) {
             console.error(`Error retrieving TODO with ID ${id}:`, error);
-            throw new Error('Could not retrieve TODO');
+            throw new Error('Database error');
         }
     }
 
@@ -52,30 +48,49 @@ export class todoModel {
             return result.insertedId; // Devolver el ID del documento insertado
         } catch (error) {
             console.error('Error inserting TODO:', error);
-            throw new Error('Could not insert TODO');
+            throw new Error('Database error');
         }
     }
 
-    static async patchToDos() {
+    static async patchToDos(id, updates) {
 
-        //Modifica solo los campos especificados en la solicitud, sin afectar los demás campos del recurso.
+        if (!ObjectId.isValid(id)) { throw new Error('Invalid ObjectId'); }
 
-    }
+        const objectId = ObjectId.createFromHexString(id);
 
-    //No usar PUT
-    static async putToDos() {
-
-        //Reemplaza todo el recurso con la nueva representación enviada.
-
-    }
-
-    static async deleteToDos(id) {
         try {
             const todosCollection = await connectToDatabase();
 
-            if (!ObjectId.isValid(id)) { throw new Error('Invalid ObjectId'); }
+            // Actualizar el documento en la colección usando el ObjectId
+            const result = await todosCollection.updateOne(
+                { _id: objectId },
+                {
+                    $set: {
+                        ...updates, // Actualiza los campos especificados en 'updates'
+                        updatedAt: new Date().toISOString() // Actualiza la fecha de modificación
+                    }
+                }
+            );
 
-            const objectId = ObjectId.createFromHexString(id);
+            // Verificar si se actualizó algún documento
+            if (result.matchedCount === 0) { return null; }
+
+            return { message: 'TODO updated successfully' };
+        } catch (error) {
+            console.error(`Error updating TODO with ID ${id}:`, error);
+            throw new Error('Database error');
+        }
+    }
+
+    static async deleteToDos(id) {
+
+        if (!ObjectId.isValid(id)) { throw new Error('Invalid ObjectId'); }
+
+        const objectId = ObjectId.createFromHexString(id);
+
+        try {
+            const todosCollection = await connectToDatabase();
+
 
             const result = await todosCollection.deleteOne({ _id: objectId });
 
@@ -85,7 +100,7 @@ export class todoModel {
 
         } catch (error) {
             console.error(`Error deleting TODO with ID ${id}:`, error);
-            throw new Error('Could not delete TODO');
+            throw new Error('Database error');
         }
     }
 
