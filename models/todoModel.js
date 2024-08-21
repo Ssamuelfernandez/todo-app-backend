@@ -1,12 +1,11 @@
-import { connectToDatabase } from "../mongoDB.js";
-import { ObjectId } from "mongodb";
+import ToDo from "../schema/todoSchema.js";
+import mongoose from "mongoose";
 
 export class todoModel {
 
     static async getToDos() {
         try {
-            const todosCollection = await connectToDatabase();
-            return await todosCollection.find({}).toArray();
+            return await ToDo.find({});
         } catch (error) {
             console.error('Error retrieving TODOs:', error);
             throw new Error('Database error');
@@ -14,22 +13,16 @@ export class todoModel {
     }
 
     static async getToDosById(id) {
-        // Validar si el ID proporcionado es un ObjectId válido
-        if (!ObjectId.isValid(id)) { throw new Error('Invalid ObjectId'); }
 
-        // Convertir el ID en un ObjectId de MongoDB
-        const objectId = ObjectId.createFromHexString(id);
+        //* Validar si el ID proporcionado es un ObjectId válido
+        if (!mongoose.isValidObjectId(id)) { throw new Error('Invalid ObjectId'); }
 
         try {
-            const todosCollection = await connectToDatabase();
-
-            // Buscar el documento en la colección usando el ObjectId
-            const todo = await todosCollection.findOne({ _id: objectId });
-
-            // Verificar si se encontró el documento
+            const todo = await ToDo.findById(id);
             if (!todo) { return null; }
 
-            return todo;
+            return todo
+
         } catch (error) {
             console.error(`Error retrieving TODO with ID ${id}:`, error);
             throw new Error('Database error');
@@ -38,70 +31,68 @@ export class todoModel {
 
     static async postToDos(todo) {
         try {
-            const todosCollection = await connectToDatabase();
-            const result = await todosCollection.insertOne({
-                title: todo.title,
-                completed: todo.completed || false,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            });
-            return result.insertedId; // Devolver el ID del documento insertado
+            const newToDo = new ToDo(todo);
+            return await newToDo.save();
         } catch (error) {
-            console.error('Error inserting TODO:', error);
-            throw new Error('Database error');
+
+            if (error instanceof mongoose.Error.ValidationError) {
+                //! Manejo de errores de validación
+                console.error('Validation Error:', error.errors);
+                throw new Error(`Validation Error: ${Object.values(error.errors).map(e => e.message).join(', ')}`);
+
+            } else if (error instanceof mongoose.Error.CastError) {
+                //! Manejo de errores de tipo de datos
+                console.error('Cast Error:', error.message);
+                throw new Error('Invalid data type');
+
+            } else {
+                //! Manejo de otros errores
+                console.error('Database Error:', error.message);
+                throw new Error('Database error');
+            }
         }
     }
 
     static async patchToDos(id, updates) {
 
-        if (!ObjectId.isValid(id)) { throw new Error('Invalid ObjectId'); }
+        if (!mongoose.isValidObjectId(id)) { throw new Error('Invalid ObjectId'); }
 
-        const objectId = ObjectId.createFromHexString(id);
 
         try {
-            const todosCollection = await connectToDatabase();
-
-            // Actualizar el documento en la colección usando el ObjectId
-            const result = await todosCollection.updateOne(
-                { _id: objectId },
-                {
-                    $set: {
-                        ...updates, // Actualiza los campos especificados en 'updates'
-                        updatedAt: new Date().toISOString() // Actualiza la fecha de modificación
-                    }
-                }
-            );
-
-            // Verificar si se actualizó algún documento
-            if (result.matchedCount === 0) { return null; }
-
+            updates.updatedAt = new Date();
+            const result = await ToDo.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
+            if (!result) return null;
             return { message: 'TODO updated successfully' };
         } catch (error) {
-            console.error(`Error updating TODO with ID ${id}:`, error);
-            throw new Error('Database error');
+
+            if (error instanceof mongoose.Error.ValidationError) {
+                //! Manejo de errores de validación
+                console.error('Validation Error:', error.errors);
+                throw new Error(`Validation Error: ${Object.values(error.errors).map(e => e.message).join(', ')}`);
+
+            } else if (error instanceof mongoose.Error.CastError) {
+                //! Manejo de errores de tipo de datos
+                console.error('Cast Error:', error.message);
+                throw new Error('Invalid data type');
+
+            } else {
+                //! Manejo de otros errores
+                console.error(`Error updating TODO with ID ${id}:`, error);
+                console.error('Database Error:', error.message);
+                throw new Error('Database error');
+            }
         }
+
     }
 
     static async deleteToDos(id) {
-
-        if (!ObjectId.isValid(id)) { throw new Error('Invalid ObjectId'); }
-
-        const objectId = ObjectId.createFromHexString(id);
-
         try {
-            const todosCollection = await connectToDatabase();
-
-
-            const result = await todosCollection.deleteOne({ _id: objectId });
-
-            if (result.deletedCount === 0) { throw new Error('TODO not found'); }
-
+            const result = await ToDo.findByIdAndDelete(id);
+            if (!result) throw new Error('TODO not found');
             return { message: 'TODO deleted successfully' };
-
         } catch (error) {
             console.error(`Error deleting TODO with ID ${id}:`, error);
             throw new Error('Database error');
         }
     }
-
 }

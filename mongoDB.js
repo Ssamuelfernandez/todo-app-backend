@@ -1,4 +1,38 @@
-import { MongoClient, ServerApiVersion } from 'mongodb';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+
+dotenv.config();
+const uri = process.env.MONGO_URI;
+
+export async function connectToDatabase() {
+  try {
+      await mongoose.connect(uri);
+      console.log('Connected to MongoDB with Mongoose');
+  } catch (error) {
+      console.error('Error connecting to database with Mongoose:', error);
+      throw error;
+  }
+}
+
+export async function checkDatabaseStatus() {
+  const connectionState = mongoose.connection.readyState;
+
+  switch (connectionState) {
+      case 0:
+          return { status: 'disconnected' };
+      case 1:
+          return { status: 'connected' };
+      case 2:
+          return { status: 'connecting' };
+      case 3:
+          return { status: 'disconnecting' };
+      default:
+          return { status: 'unknown' };
+  }
+}
+
+
+/* import { MongoClient, ServerApiVersion } from 'mongodb';
 import dotenv from 'dotenv';
 
 dotenv.config()
@@ -29,13 +63,5 @@ const client = new MongoClient(uri, {
     }
   }
 
-  export async function checkDatabaseStatus() {
-    try {
-        const db = client.db('todo-app');
-        await db.command({ ping: 1 }); // Realiza una operación simple para verificar el estado
-        return { status: 'ok' };
-    } catch (error) {
-        console.error('Error checking database status:', error);
-        return { status: 'error', message: 'Database connection issue' };
-    }
-}
+
+*/

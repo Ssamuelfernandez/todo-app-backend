@@ -49,9 +49,9 @@ export class ToDoController {
 
     static async postToDos(req, res) {
         try {
-            const { title, completed } = req.body;
-            const insertedId = await todoModel.postToDos({ title, completed });
-            res.status(201).json({ message: 'TODO created', id: insertedId });
+            const todo = req.body;
+            const insertedTodo = await todoModel.postToDos(todo);
+            res.status(201).json({ message: 'TODO created', todo: insertedTodo });
         } catch (error) {
             res.status(500).json({ message: 'Error creating TODO', error: error.message });
         }
@@ -77,22 +77,22 @@ export class ToDoController {
         const updates = req.body;
 
         try {
-            // Llamar al modelo para actualizar el TODO
+            //* Llamar al modelo para actualizar el TODO
             const result = await todoModel.patchToDos(id, updates);
 
-            // Manejar el caso en el que el TODO no se encuentra
+            //* Manejar el caso en el que el TODO no se encuentra
             if (result === null) {
                 return res.status(404).json({ error: 'TODO not found' });
             }
 
             res.status(200).json(result);
         } catch (error) {
-            // Manejar errores del modelo de manera específica
+            //! Manejar errores del modelo de manera específica
             if (error.message === 'Invalid ObjectId') {
                 return res.status(400).json({ error: 'Invalid ID format' });
             } 
 
-            // Para otros errores generales de la base de datos
+            //! Para otros errores generales de la base de datos
             return res.status(500).json({ error: 'Database error', details: error.message });
         }
     }

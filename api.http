@@ -1,32 +1,46 @@
-### Obtener Bienvenida
+###? Obtener Bienvenida
 GET http://localhost:3000/api
 
-### Obtener TODOs
+###? Obtener TODOs
 GET http://localhost:3000/api/todos
 
-### Obtener TODO por ID
-GET http://localhost:3000/api/todos/66bf7210a6425a2edf4638c0
+###? Obtener TODO por ID
+GET http://localhost:3000/api/todos/66c5cde974fca3f046fae18e
 
 
-### Postear TODO
+###? Postear TODO
 POST http://localhost:3000/api/todos HTTP/1.1
 Content-Type: application/json
 
 {
-    "title": "Test todo app 6",
-    "completed": false
+    "title": "Test TODO nuevo 2",
+    "description": "This is a description for the test TODO item.",
+    "status": "Pending",     
+    "completed": false,
+    "priority": "Medium",
+    "category": "Work",
+    "reminder": "2024-09-21T10:00:00Z",
+    "dueDate": "2024-09-30T23:59:59Z",
+    "tags": ["urgent", "home"]
 }
 
-### Modificar campos TODOs
-PATCH http://localhost:3000/api/todos/66bcedd850029bba15851a3c HTTP/1.1
+###? Modificar campos TODOs
+PATCH http://localhost:3000/api/todos/66c5dec12a7f1003067273ac HTTP/1.1
 Content-Type: application/json
 
 {
-    "title": "Primer test de todo aplicacion app",
-    "completed": true
+    "title": "Test TODO nuevo 2.1",
+    "description": "This is a description for the test TODO item.",
+    "status": "Pending",
+    "completed": false,
+    "priority": "High",
+    "category": "Work",
+    "reminder": "2024-10-21T10:00:00Z",
+    "dueDate": "2024-10-30T23:59:59Z",
+    "tags": ["urgent", "home"]
 }
 
 
-### Eliminar TODO
+###? Eliminar TODO
 DELETE http://localhost:3000/api/todos/66bf7210a6425a2edf4638c0
 
