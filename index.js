@@ -1,6 +1,7 @@
 import express from 'express'
-import { todoRouter } from './routes/routes.js'
+import { todoRouter } from './routes/todoRoutes.js'
 import { connectToDatabase } from './mongoDB.js'
+import { noteRouter } from './routes/noteRoutes.js'
 
 const app = express()
 
@@ -10,6 +11,7 @@ app.disable('x-powered-by')
 app.use(express.json())
 
 app.use('/api', todoRouter)
+app.use('/api', noteRouter)
 
 connectToDatabase()
     .then(() => {
