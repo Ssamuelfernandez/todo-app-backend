@@ -1,4 +1,5 @@
 import express from 'express'
+import { errorHandler } from './middlewares/errorHandler.js'
 import { todoRouter } from './routes/todoRoutes.js'
 import { connectToDatabase } from './mongoDB.js'
 import { noteRouter } from './routes/noteRoutes.js'
@@ -12,6 +13,8 @@ app.use(express.json())
 
 app.use('/api', todoRouter)
 app.use('/api', noteRouter)
+
+app.use(errorHandler)
 
 connectToDatabase()
     .then(() => {

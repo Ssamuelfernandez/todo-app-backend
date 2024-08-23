@@ -5,7 +5,7 @@ GET http://localhost:3000/api
 GET http://localhost:3000/api/todos
 
 ###? Obtener TODO por ID
-GET http://localhost:3000/api/todos/66c5df9364f1cdb347d5bf89
+GET http://localhost:3000/api/todos/66c30d5cc731edb789995433
 
 
 ###? Postear TODO
@@ -13,7 +13,7 @@ POST http://localhost:3000/api/todos HTTP/1.1
 Content-Type: application/json
 
 {
-    "title": "Test TODO nuevo 2",
+    "title": "Test TODO nuevo 10",
     "description": "This is a description for the test TODO item.",
     "status": "Pending",     
     "completed": false,
@@ -25,11 +25,11 @@ Content-Type: application/json
 }
 
 ###? Modificar campos TODOs
-PATCH http://localhost:3000/api/todos/66c5df9364f1cdb347d5bf89 HTTP/1.1
+PATCH http://localhost:3000/api/todos/66c30e75289a5e6c1e05d9b3 HTTP/1.1
 Content-Type: application/json
 
 {
-    "title": "Test TODO nuevo 2",
+    "title": "Test error prueba 1",
     "description": "This is a description for the test TODO item.",
     "status": "Pending",
     "completed": false,
@@ -42,5 +42,5 @@ Content-Type: application/json
 
 
 ###? Eliminar TODO
-DELETE http://localhost:3000/api/todos/66bf7210a6425a2edf4638c0
+DELETE http://localhost:3000/api/todos/66c30d5cc731edb789995433
 

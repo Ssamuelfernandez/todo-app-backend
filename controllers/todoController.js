@@ -23,11 +23,11 @@ export class ToDoController {
             const todos = await todoModel.getToDos();
             res.status(200).json(todos);
         } catch (error) {
-            res.status(500).json({ message: 'Error retrieving TODOs', error: error.message });
+            next(error);
         }
     }
 
-    static async getToDosById(req, res) {
+    static async getToDosById(req, res, next) {
         const { id } = req.params;
         try {
             const todo = await todoModel.getToDosById(id);
@@ -39,40 +39,33 @@ export class ToDoController {
             return res.status(200).json(todo);
 
         } catch (error) {
-            if (error.message === 'Invalid ObjectId') {
-                return res.status(400).json({ error: 'Invalid ID format' });
-            }
-
-            res.status(500).json({ error: 'Error retrieving TODO', details: error.message });
+            next(error);
         }
     }
 
-    static async postToDos(req, res) {
+    static async postToDos(req, res, next) {
         try {
             const todo = req.body;
             const insertedTodo = await todoModel.postToDos(todo);
-            res.status(201).json({ message: 'TODO created', todo: insertedTodo });
+            const { _id} = insertedTodo
+            res.status(201).json({ message: `TODO created witch Id ${_id}`, todo: insertedTodo });
         } catch (error) {
-            res.status(500).json({ message: 'Error creating TODO', error: error.message });
+            next(error);
         }
     }
 
-    static async deleteToDos(req, res) {
+    static async deleteToDos(req, res, next) {
         const { id } = req.params;
         try {
             const result = await todoModel.deleteToDos(id);
             res.status(200).json(result);
         } catch (error) {
-            if (error.message === 'Invalid ObjectId') {
-                return res.status(400).json({ error: 'Invalid ID format' });
-            } else if (error.message === 'TODO not found') {
-                return res.status(404).json({ error: 'TODO not found' });
-            }
-            res.status(500).json({ message: 'Error deleting TODO', error: error.message });
+            next(error);
+
         }
     }
 
-    static async patchToDos(req, res) {
+    static async patchToDos(req, res, next) {
         const { id } = req.params;
         const updates = req.body;
 
@@ -87,13 +80,7 @@ export class ToDoController {
 
             res.status(200).json(result);
         } catch (error) {
-            //! Manejar errores del modelo de manera específica
-            if (error.message === 'Invalid ObjectId') {
-                return res.status(400).json({ error: 'Invalid ID format' });
-            } 
-
-            //! Para otros errores generales de la base de datos
-            return res.status(500).json({ error: 'Database error', details: error.message });
+            next(error)
         }
     }
 
