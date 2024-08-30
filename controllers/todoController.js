@@ -18,9 +18,10 @@ export class ToDoController {
         }
     }
 
-    static async getToDos(req, res) {
+    static async getToDos(req, res, next) {
         try {
-            const todos = await todoModel.getToDos();
+            const filters = req.query;
+            const todos = await todoModel.getToDos(filters);
             res.status(200).json(todos);
         } catch (error) {
             next(error);

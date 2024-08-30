@@ -12,9 +12,56 @@ async function invalidObject(id) {
 
 export class todoModel {
 
-    static async getToDos() {
-        return await handleDatabaseOperation(() => ToDo.find({}));
+    static async getToDos(filters = {}) {
+        const query = {};
+    
+        // Filtro por estado
+        if (filters.status) {
+            query.status = filters.status;
+        }
+    
+        // Filtro por prioridad
+        if (filters.priority) {
+            query.priority = filters.priority;
+        }
+    
+        // Filtro por categoría
+        if (filters.category) {
+            query.category = filters.category;
+        }
+    
+        // Filtro por fecha de vencimiento
+        if (filters.dueBefore) {
+            query.dueDate = { ...query.dueDate, $lt: new Date(filters.dueBefore) };
+        }
+        if (filters.dueAfter) {
+            query.dueDate = { ...query.dueDate, $gt: new Date(filters.dueAfter) };
+        }
+    
+        // Filtro por etiquetas
+        if (filters.tags) {
+            query.tags = { $in: filters.tags.split(',') };
+        }
+    
+        // Filtro por recordatorio
+        if (filters.reminderBefore) {
+            query.reminder = { ...query.reminder, $lt: new Date(filters.reminderBefore) };
+        }
+        if (filters.reminderAfter) {
+            query.reminder = { ...query.reminder, $gt: new Date(filters.reminderAfter) };
+        }
+    
+        // Filtro por fecha de creación
+        if (filters.createdBefore) {
+            query.createdAt = { ...query.createdAt, $lt: new Date(filters.createdBefore) };
+        }
+        if (filters.createdAfter) {
+            query.createdAt = { ...query.createdAt, $gt: new Date(filters.createdAfter) };
+        }
+    
+        return await handleDatabaseOperation(() => ToDo.find(query));
     }
+    
 
     static async getToDosById(id) {
         await invalidObject(id);
