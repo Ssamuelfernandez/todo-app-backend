@@ -15,22 +15,22 @@ export class todoModel {
     static async getToDos(filters = {}) {
         const query = {};
     
-        // Filtro por estado
+        //* Filtro por estado
         if (filters.status) {
             query.status = filters.status;
         }
     
-        // Filtro por prioridad
+        //* Filtro por prioridad
         if (filters.priority) {
             query.priority = filters.priority;
         }
     
-        // Filtro por categoría
+        //* Filtro por categoría
         if (filters.category) {
             query.category = filters.category;
         }
     
-        // Filtro por fecha de vencimiento
+        //* Filtro por fecha de vencimiento
         if (filters.dueBefore) {
             query.dueDate = { ...query.dueDate, $lt: new Date(filters.dueBefore) };
         }
@@ -38,12 +38,12 @@ export class todoModel {
             query.dueDate = { ...query.dueDate, $gt: new Date(filters.dueAfter) };
         }
     
-        // Filtro por etiquetas
+        //* Filtro por etiquetas
         if (filters.tags) {
             query.tags = { $in: filters.tags.split(',') };
         }
     
-        // Filtro por recordatorio
+        //* Filtro por recordatorio
         if (filters.reminderBefore) {
             query.reminder = { ...query.reminder, $lt: new Date(filters.reminderBefore) };
         }
@@ -51,7 +51,7 @@ export class todoModel {
             query.reminder = { ...query.reminder, $gt: new Date(filters.reminderAfter) };
         }
     
-        // Filtro por fecha de creación
+        //* Filtro por fecha de creación
         if (filters.createdBefore) {
             query.createdAt = { ...query.createdAt, $lt: new Date(filters.createdBefore) };
         }
@@ -79,7 +79,7 @@ export class todoModel {
         const result = await handleDatabaseOperation(() => ToDo.findByIdAndUpdate(id, updates, { new: true, runValidators: true }));
 
         if (!result) { return null; }
-        return { message: 'TODO updated successfully' };
+        return result;
     }
 
 

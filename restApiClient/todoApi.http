@@ -1,43 +1,43 @@
 ###? Obtener Bienvenida
-GET http://localhost:3000/api
+GET http://localhost:3000/
 
 ###? Obtener TODOs
-GET http://localhost:3000/api/todos
+GET http://localhost:3000/todos
 
 ###? Obtener TODOs Filtrados por Estado
-GET http://localhost:3000/api/todos?status=Completed
+GET http://localhost:3000/todos?status=Completed
 
 ###? Obtener TODOs Filtrados por Prioridad
-GET http://localhost:3000/api/todos?priority=High
+GET http://localhost:3000/todos?priority=High
 
 ###? Obtener TODOs Filtrados por Categoría
-GET http://localhost:3000/api/todos?category=Work
+GET http://localhost:3000/todos?category=Work
 
 ###? Obtener TODOs Filtrados por Fecha de Vencimiento
-GET http://localhost:3000/api/todos?dueBefore=2024-09-01
-GET http://localhost:3000/api/todos?dueAfter=2024-09-01
+GET http://localhost:3000/todos?dueBefore=2025-09-01
 
 ###? Obtener TODOs Filtrados por Etiquetas
-GET http://localhost:3000/api/todos?tags=urgent,home
+GET http://localhost:3000/todos?tags=urgent,home
 
 ###? Obtener TODOs Filtrados por Recordatorio
-GET http://localhost:3000/api/todos?reminderBefore=2024-10-01
+GET http://localhost:3000/todos?reminderBefore=2024-10-01
 
 ###? Obtener TODOs Filtrados por Fecha de Creación
-GET http://localhost:3000/api/todos?createdAfter=2024-08-23&createdBefore=2024-09-01
+GET http://localhost:3000/todos?createdAfter=2024-08-24&createdBefore=2024-09-01
 
 ###? Obtener TODO por ID
-GET http://localhost:3000/api/todos/66c30d5cc731edb789995433
+GET http://localhost:3000/todos/66c5cdcf74fca3f046fae18a
 
 ###? Postear TODO
-POST http://localhost:3000/api/todos HTTP/1.1
+POST http://localhost:3000/todos HTTP/1.1
 Content-Type: application/json
+
 {
-    "title": "Test TODO nuevo 12",
-    "description": "This is a description for the test TODO item.",
+    "title": "Test Nuevo Todo 13",
+    "description": "Descripcion del todo blablabla.",
     "status": "Completed",     
     "completed": true,
-    "priority": "Medium",
+    "priority": "Low",
     "category": "Work",
     "reminder": "2024-09-21T10:00:00Z",
     "dueDate": "2024-09-30T23:59:59Z",
@@ -45,13 +45,14 @@ Content-Type: application/json
 }
 
 ###? Modificar campos TODOs
-PATCH http://localhost:3000/api/todos/66c30e75289a5e6c1e05d9b3 HTTP/1.1
+PATCH http://localhost:3000/todos/66c30e75289a5e6c1e05d9b3 HTTP/1.1
 Content-Type: application/json
+
 {
-    "title": "Test error prueba 1",
-    "description": "This is a description for the test TODO item.",
+    "title": "Test error prueba 1.2",
+    "description": "Descripcion 2.1 del todo blablabla.",
     "status": "Pending",
-    "completed": false,
+    "completed": true,
     "priority": "High",
     "category": "Work",
     "reminder": "2024-10-21T10:00:00Z",
@@ -60,5 +61,5 @@ Content-Type: application/json
 }
 
 ###? Eliminar TODO
-DELETE http://localhost:3000/api/todos/66c30d5cc731edb789995433
+DELETE http://localhost:3000/todos/66c5cdcf74fca3f046fae18a
 

@@ -1,22 +1,6 @@
 import { todoModel } from '../models/todoModel.js'
-import { checkDatabaseStatus } from '../mongoDB.js';
 
 export class ToDoController {
-
-    static async getWelcome(req, res) {
-        try {
-            const dbStatus = await checkDatabaseStatus();
-            res.status(200).json({
-                message: 'Welcome to ToDo API',
-                database: dbStatus
-            });
-        } catch (error) {
-            res.status(500).json({
-                message: 'Error checking API status',
-                error: error.message
-            });
-        }
-    }
 
     static async getToDos(req, res, next) {
         try {
@@ -79,7 +63,9 @@ export class ToDoController {
                 return res.status(404).json({ error: 'TODO not found' });
             }
 
-            res.status(200).json(result);
+            const { _id } = result
+
+            res.status(201).json({ message: `TODO witch Id ${_id} is updated correctly`, todo: result });
         } catch (error) {
             next(error)
         }

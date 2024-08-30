@@ -3,6 +3,7 @@ import { errorHandler } from './middlewares/errorHandler.js'
 import { todoRouter } from './routes/todoRoutes.js'
 import { connectToDatabase } from './mongoDB.js'
 import { noteRouter } from './routes/noteRoutes.js'
+import { getWelcome } from './controllers/welcomeController.js'
 
 const app = express()
 
@@ -11,8 +12,9 @@ const PORT = process.env.PORT || 3000
 app.disable('x-powered-by')
 app.use(express.json())
 
-app.use('/api', todoRouter)
-app.use('/api', noteRouter)
+app.get('/', getWelcome)
+app.use('/todos', todoRouter)
+app.use('/notes', noteRouter)
 
 app.use(errorHandler)
 
