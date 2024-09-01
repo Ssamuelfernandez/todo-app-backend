@@ -1,0 +1,24 @@
+###? Registrar Usuario
+POST http://localhost:3000/auth/register HTTP/1.1
+Content-Type: application/json
+
+{
+    "nickname": "exampleNick",
+    "firstName": "John",
+    "email": "johndoe@example.com",
+    "password": "securePassword123"
+}
+
+###? Iniciar Sesión
+POST http://localhost:3000/auth/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "email": "johndoe@example.com",
+    "password": "securePassword123"
+}
+
+###? Obtener Información de Usuario Logueado
+GET http://localhost:3000/auth/profile HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ZDRjMThmYTQ0MWFjNzA2NjljMjRjMSIsImlhdCI6MTcyNTIyMDQ5NiwiZXhwIjoxNzI1MjI0MDk2fQ.swfSqn6HdqL6SiXE94fzvZ_LW1cnCTMucnljk9JwhVg
