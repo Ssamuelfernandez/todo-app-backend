@@ -5,6 +5,7 @@ import { connectToDatabase } from './mongoDB.js'
 import { noteRouter } from './routes/noteRoutes.js'
 import { getWelcome } from './controllers/welcomeController.js'
 import { authRouter } from './routes/authRoutes.js'
+import { authenticateJWT } from './middlewares/authMiddleware.js'
 
 const app = express()
 
@@ -14,7 +15,7 @@ app.disable('x-powered-by')
 app.use(express.json())
 
 app.get('/', getWelcome)
-app.use('/todos', todoRouter)
+app.use('/todos', authenticateJWT,  todoRouter)
 app.use('/notes', noteRouter)
 app.use('/auth', authRouter)
 

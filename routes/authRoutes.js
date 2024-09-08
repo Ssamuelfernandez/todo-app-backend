@@ -7,3 +7,5 @@ export const authRouter = Router();
 authRouter.post('/register', AuthController.register);
 authRouter.post('/login', AuthController.login);
 authRouter.get('/profile', authenticateJWT, AuthController.getProfile);
+authRouter.post('/logout', authenticateJWT, AuthController.logout);
+
