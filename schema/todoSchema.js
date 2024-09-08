@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { type } from 'os';
 
 const todoSchema = new mongoose.Schema({
     title: {
@@ -64,6 +65,11 @@ const todoSchema = new mongoose.Schema({
     updatedAt: {
         type: Date,
         default: Date.now
+    },
+    userId: {
+        type: String,
+        ref: 'User',
+        required: true
     }
 }, { collection: 'myTodos', versionKey: false });
 

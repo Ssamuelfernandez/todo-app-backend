@@ -1,16 +1,15 @@
 ###? Obtener Bienvenida
 GET http://localhost:3000/
 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ZDRjMThmYTQ0MWFjNzA2NjljMjRjMSIsImlhdCI6MTcyNTQwNDQ3MSwiZXhwIjoxNzI1NDA0NTMxfQ.YYh15h2oKL6oSF72H8YXS9uefGpWXqWdN3kjR7KRkmc
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ZDgzMjczMDY0YzhhNTQ3NmQyNjQ4NCIsImxhc3RMb2dpbiI6IjIwMjQtMDktMDhUMTg6MzI6MDMuNjg2WiIsImlhdCI6MTcyNTgyMDMyMywiZXhwIjoxNzI1ODIyMTIzfQ.OA-_yLRh1DXb3oaa6mtAdut08L-CRWvbqbt8B7WQkTA
 
 ###? Obtener TODOs
-GET http://localhost:3000/todos HTTP/1.1
-Content-Type: application/json
+GET http://localhost:3000/todos
 Authorization: Bearer {{token}}
 
-
 ###? Obtener TODOs Filtrados por Estado
-GET http://localhost:3000/todos?status=Completed
+GET http://localhost:3000/todos?status=In Progress
+Authorization: Bearer {{token}}
 
 ###? Obtener TODOs Filtrados por Prioridad
 GET http://localhost:3000/todos?priority=High
@@ -36,10 +35,11 @@ GET http://localhost:3000/todos/66d720450356fba43a3d612d
 ###? Postear TODO
 POST http://localhost:3000/todos HTTP/1.1
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
-    "title": "pepe",
-    "description": "Descripcion del todo blablabla.",
+    "title": "Prueba test 2",
+    "description": "Prueba test test test test test.",
     "status": "Completed",     
     "completed": true,
     "priority": "Low",
@@ -50,12 +50,13 @@ Content-Type: application/json
 }
 
 ###? Modificar campos TODOs
-PATCH http://localhost:3000/todos/66d720450356fba43a3d612d HTTP/1.1
+PATCH http://localhost:3000/todos/66ddedfcf4fad5106824aa7a HTTP/1.1
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
-    "title": "popopopopo",
-    "description": "Descripcion 2.1 del todo blablabla.",
+    "title": "Prueba con userId 2",
+    "description": "Prueba con userId 2.",
     "status": "Pending",
     "completed": true,
     "priority": "High",
@@ -66,5 +67,5 @@ Content-Type: application/json
 }
 
 ###? Eliminar TODO
-DELETE http://localhost:3000/todos/66c5cdcf74fca3f046fae18a
-
+DELETE http://localhost:3000/todos/66ddedfcf4fad5106824aa7a
+Authorization: Bearer {{token}}

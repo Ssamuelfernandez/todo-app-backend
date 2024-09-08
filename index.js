@@ -16,7 +16,7 @@ app.use(express.json())
 
 app.get('/', getWelcome)
 app.use('/todos', authenticateJWT,  todoRouter)
-app.use('/notes', noteRouter)
+app.use('/notes', authenticateJWT, noteRouter)
 app.use('/auth', authRouter)
 
 app.use(errorHandler)

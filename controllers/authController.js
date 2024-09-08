@@ -55,7 +55,7 @@ export class AuthController {
             user.lastLogin = new Date();
             await user.save();
 
-            const token = jwt.sign({ id: user._id, lastLogin: user.lastLogin }, secretKey, { expiresIn: '3m' });
+            const token = jwt.sign({ id: user._id, lastLogin: user.lastLogin }, secretKey, { expiresIn: '30m' });
             res.status(200).json({ token });
         } catch (error) {
             next(error);

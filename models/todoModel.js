@@ -13,7 +13,7 @@ async function invalidObject(id) {
 export class todoModel {
 
     static async getToDos(filters = {}) {
-        const query = {};
+        const query = { userId: filters.userId };
     
         //* Filtro por estado
         if (filters.status) {
@@ -63,9 +63,9 @@ export class todoModel {
     }
     
 
-    static async getToDosById(id) {
+    static async getToDosById(id, userId) {
         await invalidObject(id);
-        return await handleDatabaseOperation(() => ToDo.findById(id) || null);
+        return await handleDatabaseOperation(() => ToDo.findById({ _id: id, userId }) || null);
     }
 
     static async postToDos(todo) {
@@ -73,21 +73,21 @@ export class todoModel {
         return await handleDatabaseOperation(() => newToDo.save());
     }
 
-    static async patchToDos(id, updates) {
+    static async patchToDos(id, updates, userId) {
         await invalidObject(id);
         updates.updatedAt = new Date();
-        const result = await handleDatabaseOperation(() => ToDo.findByIdAndUpdate(id, updates, { new: true, runValidators: true }));
+        const result = await handleDatabaseOperation(() => ToDo.findByIdAndUpdate({ _id: id, userId }, updates, { new: true, runValidators: true }));
 
         if (!result) { return null; }
         return result;
     }
 
 
-    static async deleteToDos(id) {
+    static async deleteToDos(id, userId) {
         await invalidObject(id);
-        const result = await handleDatabaseOperation(() => ToDo.findByIdAndDelete(id));
+        const result = await handleDatabaseOperation(() => ToDo.findByIdAndDelete({ _id: id, userId }));
 
-        if (!result) { throw { status: 404, message: 'TODO not found' }; }
+        if (!result) { throw { status: 404, message: 'TODO not found or not authorized' }; }
 
         return { message: 'TODO deleted successfully' };
 
