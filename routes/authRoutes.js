@@ -8,3 +8,5 @@ authRouter.post('/register', AuthController.register);
 authRouter.post('/login', AuthController.login);
 authRouter.post('/logout', authenticateJWT, AuthController.logout);
 authRouter.get('/profile', authenticateJWT, AuthController.getProfile);
+
+//! Recuperar contraseña? /forgotPassword
