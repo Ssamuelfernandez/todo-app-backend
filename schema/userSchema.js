@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { type } from 'os';
 
 const userSchema = new mongoose.Schema({
     nickname: {
@@ -32,7 +33,14 @@ const userSchema = new mongoose.Schema({
     },
     lastLogin: {
         type: Date
+    },
+    resetPasswordToken: {
+        type: String
+    },
+    resetPasswordExpires: {
+        type: Date 
     }
+
 }, { collection: 'users', versionKey: false });
 
 const User = mongoose.model('User', userSchema);
