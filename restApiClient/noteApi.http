@@ -1,2 +1,57 @@
+@base_url = http://localhost:3000
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ZTFiZDhjOTQ2Y2QyNWIxMDQxM2QwNiIsImxhc3RMb2dpbiI6IjIwMjQtMDktMTFUMTU6NTY6MTEuMTg3WiIsImlhdCI6MTcyNjA3MDE3MSwiZXhwIjoxNzI2MDcxOTcxfQ.dqJ9Fgp1nXkWwxQztfGdwaen0_pU7OHuWy4b5SlNPEc
+
+###? Obtener Bienvenida
+GET {{base_url}}/
+
 ###? Obtener Notas
-GET http://localhost:3000/api/notes
+GET {{base_url}}/notes
+Authorization: Bearer {{token}}
+
+###? Test para el título de Nota
+GET {{base_url}}/notes?title=Nueva
+Authorization: Bearer {{token}}
+
+###? Obtener Notas Filtradas por Categoría
+GET {{base_url}}/notes?category=Work
+Authorization: Bearer {{token}}
+
+###? Obtener Notas Filtradas por Etiquetas
+GET {{base_url}}/notes?tags=urgent,personal
+Authorization: Bearer {{token}}
+
+###? Obtener Notas Filtradas por Fecha de Creación
+GET {{base_url}}/notes?createdAfter=2024-08-24&createdBefore=2024-09-01
+Authorization: Bearer {{token}}
+
+###? Obtener Nota por ID
+GET {{base_url}}/notes/66d720450356fba43a3d612d
+Authorization: Bearer {{token}}
+
+###? Postear Nota
+POST {{base_url}}/notes
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "title": "Nueva Nota",
+    "content": "Contenido de la nota.",
+    "category": "Personal",
+    "tags": ["idea", "borrador"]
+}
+
+###? Modificar campos Nota
+PATCH {{base_url}}/notes/66e1c2da1f8b7f95f277a1a6
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "title": "Nota actualizada",
+    "content": "Actualizando el contenido de la nota.",
+    "category": "Work",
+    "tags": ["proyecto", "trabajo"]
+}
+
+###? Eliminar Nota
+DELETE {{base_url}}/notes/66ddedfcf4fad5106824aa7a
+Authorization: Bearer {{token}}

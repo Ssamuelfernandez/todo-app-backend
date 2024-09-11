@@ -2,7 +2,6 @@ import ToDo from "../schema/todoSchema.js";
 import mongoose from "mongoose";
 import { handleDatabaseOperation } from "../utils/errorHandler.js"
 
-
 //* Validar si el ID proporcionado es un ObjectId válido
 async function invalidObject(id) { 
     if (!mongoose.isValidObjectId(id)) { 
@@ -14,6 +13,11 @@ export class todoModel {
 
     static async getToDos(filters = {}) {
         const query = { userId: filters.userId };
+
+        //* Filtro por palabra clave en el título (búsqueda parcial)
+        if (filters.title) {
+            query.title = new RegExp(filters.title, 'i');
+        }
     
         //* Filtro por estado
         if (filters.status) {
@@ -76,7 +80,8 @@ export class todoModel {
     static async patchToDos(id, updates, userId) {
         await invalidObject(id);
         updates.updatedAt = new Date();
-        const result = await handleDatabaseOperation(() => ToDo.findByIdAndUpdate({ _id: id, userId }, updates, { new: true, runValidators: true }));
+        const result = await handleDatabaseOperation(() => 
+            ToDo.findByIdAndUpdate({ _id: id, userId }, updates, { new: true, runValidators: true }));
 
         if (!result) { return null; }
         return result;

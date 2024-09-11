@@ -33,5 +33,3 @@ connectToDatabase()
     });
 
 export default app;
-
-//! Deploy con vercel --prod

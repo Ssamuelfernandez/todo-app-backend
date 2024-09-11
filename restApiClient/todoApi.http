@@ -1,44 +1,56 @@
-###? Obtener Bienvenida
-GET http://localhost:3000/
+@base_url = http://localhost:3000
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ZDgzMjczMDY0YzhhNTQ3NmQyNjQ4NCIsImxhc3RMb2dpbiI6IjIwMjQtMDktMTFUMTY6NTQ6MzcuMzkxWiIsImlhdCI6MTcyNjA3MzY3NywiZXhwIjoxNzI2MDc1NDc3fQ.7768rj4Fj9dF5c1dWz9iWa_guDyboJb9e0tKnGmVl1g
 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ZDgzMjczMDY0YzhhNTQ3NmQyNjQ4NCIsImxhc3RMb2dpbiI6IjIwMjQtMDktMDhUMTg6MzI6MDMuNjg2WiIsImlhdCI6MTcyNTgyMDMyMywiZXhwIjoxNzI1ODIyMTIzfQ.OA-_yLRh1DXb3oaa6mtAdut08L-CRWvbqbt8B7WQkTA
+###? Obtener Bienvenida
+GET {{base_url}}/
 
 ###? Obtener TODOs
-GET http://localhost:3000/todos
+GET {{base_url}}/todos
+Authorization: Bearer {{token}}
+
+###? Test para el título
+GET {{base_url}}/todos?title=Prueba
 Authorization: Bearer {{token}}
 
 ###? Obtener TODOs Filtrados por Estado
-GET http://localhost:3000/todos?status=In Progress
+GET {{base_url}}/todos?status=Completed
 Authorization: Bearer {{token}}
 
 ###? Obtener TODOs Filtrados por Prioridad
-GET http://localhost:3000/todos?priority=High
+GET {{base_url}}/todos?priority=High
+Authorization: Bearer {{token}}
 
 ###? Obtener TODOs Filtrados por Categoría
-GET http://localhost:3000/todos?category=Work
+GET {{base_url}}/todos?category=Work
+Authorization: Bearer {{token}}
 
 ###? Obtener TODOs Filtrados por Fecha de Vencimiento
-GET http://localhost:3000/todos?dueBefore=2025-09-01
+GET {{base_url}}/todos?dueBefore=2025-09-01
+Authorization: Bearer {{token}}
 
 ###? Obtener TODOs Filtrados por Etiquetas
-GET http://localhost:3000/todos?tags=urgent,home
+GET {{base_url}}/todos?tags=urgent,home
+Authorization: Bearer {{token}}
 
 ###? Obtener TODOs Filtrados por Recordatorio
-GET http://localhost:3000/todos?reminderBefore=2024-10-01
+GET {{base_url}}/todos?reminderBefore=2024-10-01
+Authorization: Bearer {{token}}
 
 ###? Obtener TODOs Filtrados por Fecha de Creación
-GET http://localhost:3000/todos?createdAfter=2024-08-24&createdBefore=2024-09-01
+GET {{base_url}}/todos?createdAfter=2024-08-24&createdBefore=2024-09-01
+Authorization: Bearer {{token}}
 
 ###? Obtener TODO por ID
-GET http://localhost:3000/todos/66d720450356fba43a3d612d
+GET {{base_url}}/todos/66d720450356fba43a3d612d
+Authorization: Bearer {{token}}
 
 ###? Postear TODO
-POST http://localhost:3000/todos HTTP/1.1
+POST {{base_url}}/todos
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "title": "Prueba test 2",
+    "title": "Prueba test nuevo",
     "description": "Prueba test test test test test.",
     "status": "Completed",     
     "completed": true,
@@ -50,7 +62,7 @@ Authorization: Bearer {{token}}
 }
 
 ###? Modificar campos TODOs
-PATCH http://localhost:3000/todos/66ddedfcf4fad5106824aa7a HTTP/1.1
+PATCH {{base_url}}/todos/66ddedfcf4fad5106824aa7a
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -67,5 +79,5 @@ Authorization: Bearer {{token}}
 }
 
 ###? Eliminar TODO
-DELETE http://localhost:3000/todos/66ddedfcf4fad5106824aa7a
+DELETE {{base_url}}/todos/66ddedfcf4fad5106824aa7a
 Authorization: Bearer {{token}}
