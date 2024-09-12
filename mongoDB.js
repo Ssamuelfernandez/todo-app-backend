@@ -16,7 +16,7 @@ export async function connectToDatabase() {
 
 export async function checkDatabaseStatus() {
     const connectionState = mongoose.connection.readyState;
-    await mongoose.connection.db.command({ ping: 1 });
+
     switch (connectionState) {
         case 0:
             return { status: 'disconnected' };
