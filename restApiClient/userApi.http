@@ -12,6 +12,10 @@ Content-Type: application/json
     "password": "securePassword123"
 }
 
+###? Validar email
+GET {{base_url}}/auth/verify-email/ HTTP/1.1
+Content-Type: application/json 
+
 ###? Iniciar Sesión
 POST {{base_url}}/auth/login HTTP/1.1
 Content-Type: application/json

@@ -1,7 +1,7 @@
 node_modules
 .env
-comentarios.js
 .vercel
 .vercelignore
 vercel.json
 TODO.js
+restApiClient/
