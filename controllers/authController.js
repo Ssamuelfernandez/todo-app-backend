@@ -44,12 +44,9 @@ export class AuthController {
         try {
             const { email, password } = req.body;
             const user = await User.findOne({ email });
-            if (!user) {
-                return res.status(404).json({ error: 'User not found' });
-            }
 
             const isMatch = await bcrypt.compare(password, user.password);
-            if (!isMatch) {
+            if (!isMatch || !user) {
                 return res.status(400).json({ error: 'Invalid credentials' });
             }
 
@@ -105,6 +102,7 @@ export class AuthController {
     
             // Send email
             await resend.emails.send({
+                from: "ToDo App SsamuelFernandez <forgotPassword@ssamuelfernandez.net>",
                 to: user.email,
                 subject: 'Password Reset',
                 html: `<p>You are receiving this email because you (or someone else) has requested the reset of a password.</p>
@@ -147,5 +145,29 @@ export class AuthController {
             next(error);
         }
     }
+
+    static async changePassword(req, res, next) {
+        try {
+            const { currentPassword, newPassword } = req.body;
+            const userId = req.user._id;
+    
+            const user = await User.findById(userId);
+    
+            //* Verifico que la contraseña actual es correcta
+            const isMatch = await bcrypt.compare(currentPassword, user.password);
+            if (!isMatch) {
+                return res.status(400).json({ message: 'Incorrect current password' });
+            }
+    
+            //* Actualizo a la nueva contraseña
+            user.password = await bcrypt.hash(newPassword, 10);
+            await user.save();
+    
+            res.status(200).json({ message: 'Password has been updated successfully' });
+        } catch (error) {
+            next(error);
+        }
+    }
+    
     
 }

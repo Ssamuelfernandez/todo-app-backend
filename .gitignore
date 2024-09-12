@@ -3,4 +3,5 @@ node_modules
 comentarios.js
 .vercel
 .vercelignore
+vercel.json
 TODO.js

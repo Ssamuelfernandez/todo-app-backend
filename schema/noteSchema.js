@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const noteSchema = new mongoose.Schema({
 
-    //TODO Añadir propiedad color para almacenar colores de personalización.
+    // TODO Añadir propiedad color para almacenar colores de personalización.
 
     title: {
         type: String,
