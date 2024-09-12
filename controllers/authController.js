@@ -76,7 +76,6 @@ export class AuthController {
         }
     }
 
-
     static async login(req, res, next) {
         try {
             const { email, password } = req.body;
@@ -155,7 +154,6 @@ export class AuthController {
         }
     }
 
-
     static async resetPassword(req, res, next) {
         try {
             const { token } = req.params;
@@ -207,6 +205,5 @@ export class AuthController {
             next(error);
         }
     }
-
 
 }
