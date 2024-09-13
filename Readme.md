@@ -1,4 +1,4 @@
-# **API ToDo - Documentación de Uso**
+# **API ToDo/ Notes - Documentación de Uso**
 
 ## **Autenticación de Usuario**
 
@@ -24,7 +24,7 @@ Permite registrar un nuevo usuario en la aplicación.
 **Respuesta Exitosa:**
 ```bash
 {
-  "message": "User registered successfully",
+  "message": "User registered successfully, please verify your email",
   "userId": "user_id"
 }
 ```
@@ -35,6 +35,8 @@ Permite registrar un nuevo usuario en la aplicación.
 ### **Inicio de Sesión**
 
 Permite a los usuarios autenticarse y obtener un token de acceso.
+
+Es necesario que el usuario haya confirmado el email de verificación de la cuenta.
 
 - **Endpoint :** `POST /auth/login`
 
@@ -72,6 +74,82 @@ Permite a los usuarios cerrar sesión. En esta implementación, se actualiza la 
 }
 ```
 
+### **He olvidado la contraseña**
+
+Envía un correo electrónico con un enlace para restablecer la contraseña del usuario.
+
+- **Endpoint :** `GET /auth/forgot-password`
+
+**Cuerpo de Solicitud:**
+
+```bash
+{
+  "email": "string"
+}
+```
+**Respuesta Exitosa:**
+```bash
+{
+  "message": "Email sent with password reset instructions, you have 10 minutes to change it."
+}
+```
+
+**Errores Comunes:**
+
+`404 Not Found`: Usuario no encontrado con el correo electrónico proporcionado.
+
+### **Restablecer Contraseña**
+
+Permite a los usuarios restablecer su contraseña utilizando un token enviado por correo electrónico.
+
+- **Endpoint :** `GET /auth/reset-password/:token`
+
+**Cuerpo de Solicitud:**
+
+```bash
+{
+  "newPassword": "string"
+}
+```
+**Respuesta Exitosa:**
+```bash
+{
+  "message": "message": "Password has been reset successfully"
+}
+```
+
+**Errores Comunes:**
+
+`400 Bad Request`: Token inválido o expirado.
+
+### **Cambiar Contraseña**
+
+Permite a los usuarios autenticados cambiar su contraseña actual.
+
+- **Endpoint :** `GET /auth/change-password`
+- **Encabezado de Solicitud :** `Authorization: Bearer {jwt_token}`
+
+**Cuerpo de Solicitud:**
+
+```bash
+{
+  "currentPassword": "string",
+  "newPassword": "string"
+}
+```
+**Respuesta Exitosa:**
+```bash
+{
+  "message": "Password changed successfully"
+}
+```
+
+**Errores Comunes:**
+
+`400 Bad Request`: La contraseña actual es incorrecta o los campos no son válidos.
+
+`401 Unauthorized`: El token JWT no es válido o ha expirado.
+
 ### **Obtener Perfil del Usuario**
 
 Permite a los usuarios obtener su perfil basado en el token de autenticación.
@@ -94,21 +172,38 @@ Permite a los usuarios obtener su perfil basado en el token de autenticación.
 
 
 
-## **Peticiones a la Api**
+
+
+
+
+
+## **Peticiones a la Api ToDo**
 
 ### **Obtener Todos los ToDos**
 
 Puedes obtener todos los ToDos almacenados sin aplicar ningún filtro:
 
-**Endpoint:** `GET /todos`
+- **Endpoint:** `GET /todos`
 
-**Ejemplo de Solicitud:**
+**Respuesta Exitosa:**
 
-```bash
-GET /todos
+```
+{
+    "title": "string",
+    "description": "string",
+    "status": "string",
+    "completed": true/false,
+    "priority": "string",
+    "category": "string",
+    "reminder": "2024-09-01T00:00:00.000Z",
+    "dueDate": "2024-09-01T00:00:00.000Z",
+    "tags": ["tag1", "tag2"],
+    "createdAt": "2024-09-01T00:00:00.000Z",
+    "updatedAt": "2024-09-01T00:00:00.000Z"
+  }
 ```
 
-### **Filtrar ToDos**
+### **Filtros Disponibles para Obtener ToDos**
 
 La API te permite filtrar los ToDos usando parámetros de consulta (query parameters). A continuación, se detallan los filtros disponibles y cómo utilizarlos.
 
@@ -121,12 +216,12 @@ La API te permite filtrar los ToDos usando parámetros de consulta (query parame
 
 2. **Prioridad (`priority`)**
    - Filtra los ToDos según su prioridad.
-   - Valores permitidos: `Low`, `Medium`, `High`
+   - Valores permitidos: `Low`, `Medium`, `High`.
    - **Ejemplo:** `GET /todos?priority=High`
 
 3. **Categoría (`category`)**
    - Filtra los ToDos por categoría.
-   - Valores permitidos: `Work`, `Personal`, `Shopping`, `Health`, `Finance`, `Education`, `Social`, `Travel`, `Hobby`, `Errands`, `Others`
+   - Valores permitidos: `Work`, `Personal`, `Shopping`, `Health`, `Finance`, `Education`, `Social`, `Travel`, `Hobby`, `Errands`, `Others`.
    - **Ejemplo:** `GET /todos?category=Work`
 
 4. **Fecha de Vencimiento (`dueDate`)**
@@ -177,11 +272,317 @@ Puedes combinar múltiples filtros en una sola solicitud para refinar aún más 
   GET /todos?createdAfter=2024-01-01&dueBefore=2024-09-01
   ```
 
-### **Notas**
+### **Obtener ToDo por ID**
 
-  #### **Parámetros de Consulta:** 
-  Los parámetros de consulta son opcionales. Si no se especifican, se devolverán todos los ToDos.
-  #### **Formato de Fecha:** 
+Obtén un ToDo específico usando su ID.
+
+- **Endpoint :** `GET /todos/:id`
+
+**Respuesta Exitosa:**
+
+```bash
+{
+  "title": "string",
+  "description": "string",
+  "status": "string",
+  "completed": true/false,
+  "priority": "string",
+  "category": "string",
+  "reminder": "2024-09-01T00:00:00.000Z",
+  "dueDate": "2024-09-01T00:00:00.000Z",
+  "tags": ["tag1", "tag2"],
+  "createdAt": "2024-09-01T00:00:00.000Z",
+  "updatedAt": "2024-09-01T00:00:00.000Z"
+}
+```
+**Errores Comunes:**
+
+`404 Not Found`: ToDo no encontrado o no autorizado.
+
+### **Crear un Nuevo ToDo**
+
+Crea un nuevo ToDo para el usuario autenticado.
+
+- **Endpoint :** `POST /todos`
+
+**Cuerpo de Solicitud:**
+
+```bash
+{
+  "title": "string",
+  "description": "string",
+  "status": "string",
+  "completed": true/false,
+  "priority": "string",
+  "category": "string",
+  "reminder": "2024-09-01T00:00:00.000Z",
+  "dueDate": "2024-09-01T00:00:00.000Z",
+  "tags": ["tag1", "tag2"]
+}
+```
+
+**Respuesta Exitosa:**
+
+```bash
+{
+  "message": "TODO created with Id {id}",
+  "todo": {
+    "title": "string",
+    "description": "string",
+    "status": "string",
+    "completed": true/false,
+    "priority": "string",
+    "category": "string",
+    "reminder": "2024-09-01T00:00:00.000Z",
+    "dueDate": "2024-09-01T00:00:00.000Z",
+    "tags": ["tag1", "tag2"],
+    "createdAt": "2024-09-01T00:00:00.000Z",
+    "updatedAt": "2024-09-01T00:00:00.000Z"
+  }
+```
+
+**Errores Comunes:**
+
+`400 Bad Request`: Campos requeridos faltantes o formato inválido.
+
+### **Actualizar un ToDo**
+
+Actualiza los detalles de un ToDo existente.
+
+- **Endpoint :** `PATCH /todos/:id`
+
+**Cuerpo de Solicitud:**
+
+```bash
+{
+  "title": "string",
+  "description": "string",
+  "status": "string",
+  "completed": true/false,
+  "priority": "string",
+  "category": "string",
+  "reminder": "2024-09-01T00:00:00.000Z",
+  "dueDate": "2024-09-01T00:00:00.000Z",
+  "tags": ["tag1", "tag2"]
+}
+```
+
+**Respuesta Exitosa:**
+
+```bash
+{
+  "message": "TODO with Id {id} updated successfully",
+  "todo": {
+    "title": "string",
+    "description": "string",
+    "status": "string",
+    "completed": true/false,
+    "priority": "string",
+    "category": "string",
+    "reminder": "2024-09-01T00:00:00.000Z",
+    "dueDate": "2024-09-01T00:00:00.000Z",
+    "tags": ["tag1", "tag2"],
+    "createdAt": "2024-09-01T00:00:00.000Z",
+    "updatedAt": "2024-09-01T00:00:00.000Z"
+  }
+```
+
+**Errores Comunes:**
+
+`404 Not Found`: ToDo no encontrado o no autorizado.
+
+### **Eliminar un ToDo**
+
+Elimina un ToDo específico usando su ID.
+
+- **Endpoint :** `DELETE /todos/:id`
+
+**Respuesta Exitosa:**
+
+```bash
+{
+  "message": "TODO deleted successfully"
+}
+```
+
+**Errores Comunes:**
+
+`404 Not Found`: ToDo no o o no autorizado.
+
+
+
+## **Peticiones a la Api Notes**
+
+### **Obtener Todas las Notas**
+
+Obtén todas las notas almacenadas en el sistema para el usuario autenticado.
+
+- **Endpoint :** `GET /notes`
+
+## **Filtros Disponibles para Obtener Notas**
+
+Puedes filtrar las notas usando parámetros de consulta (query parameters) para afinar los resultados.
+
+#### **Parámetros de Filtro:**
+
+1. **Título (`title`)**
+
+   - Filtra las notas que contengan ciertas palabras en el título.
+
+   - **Ejemplo:** `GET /notes?title=work`
+
+2. **Categoría (`category`)**
+
+   - Filtra las notas según su categoría.
+
+   - Valores permitidos: `Personal`, `Work`, `Ideas`, `Project`, `Meeting`, `Others`.
+
+   - **Ejemplo:** `GET /notes?category=Work`
+
+3. **Etiquetas (`tags`)**
+
+   - Filtra las notas que contienen ciertas etiquetas.
+
+   - Numero maximo de cinco etiquetas.
+
+   - **Ejemplo:** `GET /notes?tags=urgent,important`
+
+4. **Fecha de Creación (`createdBefore`, `createdAfter`)**
+
+   - Filtra las notas según su fecha de creación.
+
+   - Formato de fecha: YYYY-MM-DD
+
+
+   - **Ejemplo:**
+
+      - `GET /notes?createdBefore=2024-01-01`
+
+      - `GET /notes?createdAfter=2024-01-01`
+
+### **Ejemplos Combinados de Uso de Filtros**
+
+- **Ejemplo 1:** Obtener todas las notas con la categoría "Work" y con la etiqueta "urgent".
+
+  ```bash
+  GET /notes?category=Work&tags=urgent
+  ```
+
+- **Ejemplo 2:** Obtener todas las notas creadas después del 1 de enero de 2024 y con la palabra clave "meeting" en el título.
+
+  ```bash
+  GET /notes?createdAfter=2024-01-01&title=meeting
+  ```
+
+### **Obtener Nota por ID**
+
+Obtén una nota específica usando su ID.
+
+- **Endpoint :** `GET /notes/:id`
+
+**Respuesta Exitosa:**
+
+```bash
+{
+  "title": "string",
+  "content": "string",
+  "category": "string",
+  "tags": ["tag1", "tag2"],
+  "createdAt": "2024-09-01",
+  "updatedAt": "2024-09-01"
+}
+```
+**Errores Comunes:**
+
+`404 Not Found`: Nota no encontrada o no autorizada.
+
+### **Crear una Nueva Nota**
+
+Crea una nueva nota para el usuario autenticado.
+
+- **Endpoint :** `POST /notes`
+
+**Cuerpo de Solicitud:**
+
+```bash
+{
+  "title": "string",
+  "content": "string",
+  "category": "string",
+  "tags": ["tag1", "tag2"]
+}
+```
+
+**Respuesta Exitosa:**
+
+```bash
+{
+  "message": "Note created with Id {id}",
+  "note": { "note_details" }
+}
+```
+
+**Errores Comunes:**
+
+`400 Bad Request`: Campos requeridos faltantes o formato inválido.
+
+### **Actualizar Nota**
+
+Actualiza los detalles de una nota existente.
+
+- **Endpoint :** `PATCH /notes/:id`
+
+**Cuerpo de Solicitud:**
+
+```bash
+{
+  "title": "string",
+  "content": "string",
+  "category": "string",
+  "tags": ["tag1", "tag2"]
+}
+```
+
+**Respuesta Exitosa:**
+
+```bash
+{
+  "message": "Note with Id {id} updated successfully",
+  "note": { "note_details" }
+}
+```
+
+**Errores Comunes:**
+
+`404 Not Found`: Nota no encontrada o no autorizada.
+
+### **Eliminar Nota**
+
+Elimina una nota específica usando su ID.
+
+- **Endpoint :** `DELETE /notes/:id`
+
+**Respuesta Exitosa:**
+
+```bash
+{
+  "message": "Note deleted successfully"
+}
+```
+
+**Errores Comunes:**
+
+`404 Not Found`: Nota no encontrada o no autorizada.
+
+
+
+## **Notas**
+
+  ### **Parámetros de Consulta:** 
+  Los parámetros de consulta son opcionales. Si no se especifican, se devolverán todos los items.
+  ### **Formato de Fecha:** 
   Asegúrate de usar el formato de fecha YYYY-MM-DD para los filtros relacionados con fechas.
-  #### **Token de Autenticación:**
-  Para acceder a las rutas protegidas, incluye el token JWT en el encabezado `Authorization` de la solicitud. El formato del encabezado debe ser `Authorization: Bearer {jwt_token}`.
+  ### **Token de Autenticación:**
+  Para acceder a las rutas protegidas, incluye el token JWT en el encabezado `Authorization` de la solicitud. 
+  
+  El formato del encabezado debe ser `Authorization: Bearer {jwt_token}`.
