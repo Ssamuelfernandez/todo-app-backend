@@ -12,3 +12,4 @@ authRouter.post('/forgot-password', AuthController.forgotPassword);
 authRouter.patch('/reset-password/:token', AuthController.resetPassword);
 authRouter.patch('/change-password', authenticateJWT, AuthController.changePassword);
 authRouter.get('/verify-email/:token', AuthController.verifyEmail);
+authRouter.get('/verify-token', authenticateJWT, AuthController.verifyToken);

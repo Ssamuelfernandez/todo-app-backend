@@ -1,4 +1,5 @@
 import express from 'express'
+import cors from 'cors'
 import { errorHandler } from './middlewares/errorHandler.js'
 import { todoRouter } from './routes/todoRoutes.js'
 import { connectToDatabase } from './mongoDB.js'
@@ -13,6 +14,8 @@ const PORT = process.env.PORT || 3000
 
 app.disable('x-powered-by')
 app.use(express.json())
+
+app.use(cors())
 
 app.get('/', getWelcome)
 app.use('/todos', authenticateJWT,  todoRouter)

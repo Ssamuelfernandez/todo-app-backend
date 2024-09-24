@@ -101,6 +101,14 @@ export class AuthController {
         }
     }
 
+    static async verifyToken(req, res) {
+        try {
+            return res.status(200).json({ valid: true });
+        } catch (error) {
+            next(error)
+        }
+    }
+
     static async logout(req, res, next) {
         try {
             const user = req.user;

@@ -60,6 +60,23 @@ Es necesario que el usuario haya confirmado el email de verificación de la cuen
 
 `404 Bad Request`: Credenciales inválidas.
 
+### **Verificar token del usuario**
+
+Permite verificar el token emitido.
+
+- **Endpoint :** `GET /auth/verify-token`
+- **Encabezado de Solicitud :** `Authorization: Bearer {jwt_token}`
+
+**Respuesta Exitosa:**
+```bash
+{
+  "valid": true
+}
+```
+**Errores Comunes:**
+
+`403 Forbidden`: Token expirado.
+
 ### **Cerrar Sesión**
 
 Permite a los usuarios cerrar sesión. En esta implementación, se actualiza la fecha del último inicio de sesión del usuario, lo que invalida el token actual.
