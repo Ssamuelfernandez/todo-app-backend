@@ -1,6 +1,6 @@
 import express from 'express'
 import cors from 'cors'
-import { config } from 'dotenv';
+import dotenv from 'dotenv';
 import { errorHandler } from './middlewares/errorHandler.js'
 import { todoRouter } from './routes/todoRoutes.js'
 import { connectToDatabase } from './mongoDB.js'
@@ -9,13 +9,13 @@ import { getWelcome } from './controllers/welcomeController.js'
 import { authRouter } from './routes/authRoutes.js'
 import { authenticateJWT } from './middlewares/authMiddleware.js'
 
-config();
+dotenv.config();
 
 const app = express()
 
 const PORT = process.env.PORT || 3000
 
-const allowedOrigins = process.env.ALLOWED_ORIGINS.split(',');
+const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
 
 app.disable('x-powered-by')
 app.use(express.json())
@@ -23,7 +23,7 @@ app.use(express.json())
 //? Configuración de CORS
 const corsOptions = {
     origin: allowedOrigins,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
     credentials: true
 };
