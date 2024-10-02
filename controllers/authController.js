@@ -12,32 +12,30 @@ export class AuthController {
     static async register(req, res, next) {
 
         try {
-            const { nickname, firstName, email, password } = req.body;
+            const { nickname, name, surname, email, password } = req.body;
 
-            if (!nickname || !firstName || !email || !password) {
-                return res.status(400).json({ message: 'All required fields must be provided.' });
-            }
-
-            const emailDb = await User.findOne({ email });
-            if (emailDb) {
-                return res.status(400).json({ message: 'User already registered.' });
-            }
-
-            const hashedPassword = await bcrypt.hash(password, 10);
+            // Eliminar usuarios no verificados que hayan expirado
+            await User.deleteMany({
+                isVerified: false,
+                verificationExpires: { $lt: Date.now() }
+            });
 
             const verificationToken = crypto.randomBytes(32).toString('hex');
+            const verificationExpires = Date.now() + 10 * 60 * 1000; //10 minutos
 
             const newUser = new User({
                 nickname,
-                firstName,
+                name,
+                surname,
                 email,
-                password: hashedPassword,
-                verificationToken
+                password,
+                verificationToken,
+                verificationExpires,
             });
 
             await newUser.save();
 
-            const verificationUrl = `${req.protocol}://${req.get('host')}/verify-email/${verificationToken}`;
+            const verificationUrl = `${req.protocol}://${req.get('host')}/auth/verify-email/${verificationToken}`;
 
             await resend.emails.send({
                 from: "ToDo App SsamuelFernandez <verify-email@ssamuelfernandez.net>",
@@ -48,8 +46,7 @@ export class AuthController {
                    <a href="${verificationUrl}">${verificationUrl}</a>`
             });
 
-            const { _id } = newUser;
-            res.status(201).json({ message: 'User registered successfully, please verify your email', userId: _id });
+            res.status(201).json({ message: 'User registered successfully, you have 10 minutes to verify your email' });
         } catch (error) {
             next(error);
         }
@@ -59,7 +56,10 @@ export class AuthController {
         try {
             const { token } = req.params;
 
-            const user = await User.findOne({ verificationToken: token });
+            const user = await User.findOne({
+                verificationToken: token,
+                verificationExpires: { $gt: Date.now() }
+            });
 
             if (!user) {
                 return res.status(400).json({ message: 'Invalid or expired verification token' });
@@ -67,11 +67,13 @@ export class AuthController {
 
             user.isVerified = true;
             user.verificationToken = undefined;
+            user.verificationExpires = undefined;
 
             await user.save();
 
             res.status(200).json({ message: 'Email verified successfully, you can now log in' });
         } catch (error) {
+            console.error(error);
             next(error);
         }
     }
@@ -79,22 +81,27 @@ export class AuthController {
     static async login(req, res, next) {
         try {
             const { email, password } = req.body;
+
             const user = await User.findOne({ email });
+
+            if (!user) {
+                return res.status(400).json({ error: 'Invalid credentials' });
+            }
 
             if (!user.isVerified) {
                 return res.status(403).json({ error: 'Email not verified. Please check your email.' });
             }
 
             const isMatch = await bcrypt.compare(password, user.password);
-            if (!isMatch || !user) {
+            if (!isMatch) {
                 return res.status(400).json({ error: 'Invalid credentials' });
             }
 
             //? Actualizar ultimo inicio de sesión
-            user.lastLogin = new Date();
-            await user.save();
+            const lastLoginDate = new Date();
+            await User.updateOne({ _id: user._id }, { lastLogin: lastLoginDate });
 
-            const token = jwt.sign({ id: user._id, lastLogin: user.lastLogin }, secretKey, { expiresIn: '30m' });
+            const token = jwt.sign({ id: user._id, lastLogin: lastLoginDate }, secretKey, { expiresIn: '30m' });
             res.status(200).json({ token });
         } catch (error) {
             next(error);
@@ -145,7 +152,7 @@ export class AuthController {
 
             await user.save();
 
-            const resetUrl = `${req.protocol}://${req.get('host')}/reset-password/${resetToken}`;
+            const resetUrl = `${req.protocol}://${req.get('host')}/auth/reset-password/${resetToken}`;
 
             await resend.emails.send({
                 from: "ToDo App SsamuelFernandez <forgotPassword@ssamuelfernandez.net>",
@@ -179,7 +186,7 @@ export class AuthController {
             }
 
             //? Actualizar contraseña
-            user.password = await bcrypt.hash(newPassword, 10);
+            user.password = newPassword;
             user.resetPasswordToken = undefined;
             user.resetPasswordExpires = undefined;
 
@@ -205,7 +212,7 @@ export class AuthController {
             }
 
             //? Actualizo a la nueva contraseña
-            user.password = await bcrypt.hash(newPassword, 10);
+            user.password = newPassword;
             await user.save();
 
             res.status(200).json({ message: 'Password has been updated successfully' });

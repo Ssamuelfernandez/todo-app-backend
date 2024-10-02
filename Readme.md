@@ -16,7 +16,8 @@ Permite registrar un nuevo usuario en la aplicación.
 ```bash
 {
   "nickname": "string",
-  "firstName": "string",
+  "name": "string",
+  "surname": "string",
   "email": "string",
   "password": "string"
 }
