@@ -1,4 +1,5 @@
 import express from 'express'
+import dotenv from 'dotenv';
 import cors from 'cors'
 import { errorHandler } from './middlewares/errorHandler.js'
 import { todoRouter } from './routes/todoRoutes.js'
@@ -8,6 +9,8 @@ import { getWelcome } from './controllers/welcomeController.js'
 import { authRouter } from './routes/authRoutes.js'
 import { authenticateJWT } from './middlewares/authMiddleware.js'
 
+dotenv.config();
+
 const app = express()
 
 const PORT = process.env.PORT || 3000
@@ -15,7 +18,23 @@ const PORT = process.env.PORT || 3000
 app.disable('x-powered-by')
 app.use(express.json())
 
-app.use(cors())
+const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
+
+//? Configuración de CORS
+const corsOptions = {
+    origin: function (origin, callback) {
+        if (allowedOrigins.includes(origin) || !origin) {
+            callback(null, true);
+        } else {
+            callback(new Error('No permitido por CORS'));
+        }
+    },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+};
+
+app.use(cors(corsOptions))
 
 app.get('/', getWelcome)
 app.use('/todos', authenticateJWT,  todoRouter)
