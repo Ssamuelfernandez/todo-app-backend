@@ -15,7 +15,11 @@ const app = express()
 
 const PORT = process.env.PORT || 3000
 
-const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
+const allowedOrigins = [
+    process.env.FRONTEND_VERCEL_URL,
+    process.env.FRONTEND_DOMAIN_URL,
+    process.env.LOCALHOST_URL
+].filter(Boolean);
 
 app.disable('x-powered-by')
 app.use(express.json())

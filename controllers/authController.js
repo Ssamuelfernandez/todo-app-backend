@@ -118,9 +118,8 @@ export class AuthController {
 
     static async logout(req, res, next) {
         try {
-            const user = req.user;
-            user.lastLogin = new Date();
-            await user.save();
+            const userId = req.user._id;
+            await User.updateOne({ _id: userId }, { lastLogin: new Date() });
             res.status(200).json({ message: 'Logged out successfully' });
         } catch (error) {
             next(error)
