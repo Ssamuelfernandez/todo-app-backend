@@ -55,28 +55,33 @@ export class AuthController {
     static async verifyEmail(req, res, next) {
         try {
             const { token } = req.params;
-
-            const user = await User.findOne({
-                verificationToken: token,
-                verificationExpires: { $gt: Date.now() }
-            });
-
+    
+            const user = await User.findOne({ verificationToken: token });
+    
             if (!user) {
+                return res.status(400).json({ message: 'Invalid verification token' });
+            }
+    
+            if (user.isVerified) {
+                return res.status(200).json({ message: 'Email already verified' });
+            }
+    
+            if (user.verificationExpires < Date.now()) {
                 return res.status(400).json({ message: 'Invalid or expired verification token' });
             }
-
+    
             user.isVerified = true;
-            user.verificationToken = undefined;
             user.verificationExpires = undefined;
-
+    
             await user.save();
-
-            res.status(200).json({ message: 'Email verified successfully, you can now log in' });
+    
+            return res.status(200).json({ message: 'Email verified successfully' });
         } catch (error) {
             console.error(error);
             next(error);
         }
     }
+    
 
     static async login(req, res, next) {
         try {
