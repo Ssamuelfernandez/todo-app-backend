@@ -6,6 +6,7 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const secretKey = process.env.JWT_SECRET;
+const frontDomain = process.env.FRONTEND_DOMAIN_URL
 
 export class AuthController {
 
@@ -14,7 +15,7 @@ export class AuthController {
         try {
             const { nickname, name, surname, email, password } = req.body;
 
-            // Eliminar usuarios no verificados que hayan expirado
+            //? Eliminar usuarios no verificados que hayan expirado
             await User.deleteMany({
                 isVerified: false,
                 verificationExpires: { $lt: Date.now() }
@@ -35,15 +36,15 @@ export class AuthController {
 
             await newUser.save();
 
-            const verificationUrl = `${req.protocol}://${req.get('host')}/auth/verify-email/${verificationToken}`;
+            const verificationUrl = `${frontDomain}/auth/verify-email/${verificationToken}`;
 
             await resend.emails.send({
-                from: "ToDo App SsamuelFernandez <verify-email@ssamuelfernandez.net>",
+                from: process.env.VERIFY_EMAIL,
                 to: email,
                 subject: 'Verify your email',
                 html: `<p>Thank you for registering!</p>
                    <p>Please click the link below to verify your email:</p>
-                   <a href="${verificationUrl}">${verificationUrl}</a>`
+                   <a href="${verificationUrl}">Click here to verify your email</a>`
             });
 
             res.status(201).json({ message: 'User registered successfully, you have 10 minutes to verify your email' });
@@ -55,33 +56,32 @@ export class AuthController {
     static async verifyEmail(req, res, next) {
         try {
             const { token } = req.params;
-    
+
             const user = await User.findOne({ verificationToken: token });
-    
+
             if (!user) {
                 return res.status(400).json({ message: 'Invalid verification token' });
             }
-    
+
             if (user.isVerified) {
                 return res.status(200).json({ message: 'Email already verified' });
             }
-    
+
             if (user.verificationExpires < Date.now()) {
                 return res.status(400).json({ message: 'Invalid or expired verification token' });
             }
-    
+
             user.isVerified = true;
             user.verificationExpires = undefined;
-    
+
             await user.save();
-    
+
             return res.status(200).json({ message: 'Email verified successfully' });
         } catch (error) {
             console.error(error);
             next(error);
         }
     }
-    
 
     static async login(req, res, next) {
         try {
@@ -146,22 +146,22 @@ export class AuthController {
             const user = await User.findOne({ email });
 
             if (user) {
-                //? Genero el token de reseteo
+                //? Genero el token de reseteo y lo encripto antes de guardarlo en mongo
                 const resetToken = crypto.randomBytes(32).toString('hex');
-                user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+                const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+                user.resetPasswordToken = hashedToken;
                 user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; //? 10 minutos
 
                 await user.save();
 
-                const resetUrl = `${req.protocol}://${req.get('host')}/auth/reset-password/${resetToken}`;
+                const resetUrl = `${frontDomain}/auth/reset-password/${resetToken}`;
 
                 await resend.emails.send({
-                    from: "ToDo App SsamuelFernandez <forgotPassword@ssamuelfernandez.net>",
+                    from: process.env.FORGOT_PASSWORD,
                     to: user.email,
                     subject: 'Password Reset',
                     html: `<p>You are receiving this email because you (or someone else) has requested the reset of a password.</p>
-                       <p>Please make a PUT request to the following URL to reset your password:</p>
-                       <p><a href="${resetUrl}">${resetUrl}</a></p>`
+                       <p><a href="${resetUrl}">Click here to reset your password</a></p>`
                 });
             }
 
@@ -176,7 +176,7 @@ export class AuthController {
             const { token } = req.params;
             const { newPassword } = req.body;
 
-            //? Buscar usuario mediante el rest token
+            //? Buscar usuario mediante el token hasheado ya que asi es como se guarda en mongo
             const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
             const user = await User.findOne({
                 resetPasswordToken: hashedToken,
