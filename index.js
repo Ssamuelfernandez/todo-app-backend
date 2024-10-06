@@ -19,14 +19,20 @@ const allowedOrigins = [
     process.env.FRONTEND_VERCEL_URL,
     process.env.FRONTEND_DOMAIN_URL,
     process.env.LOCALHOST_URL
-].filter(Boolean);
+];
 
 app.disable('x-powered-by')
 app.use(express.json())
 
 //? Configuración de CORS
 const corsOptions = {
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin)) {
+          callback(null, true)
+        } else {
+          callback(new Error('Not allowed by CORS'))
+        }
+      },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
     credentials: true

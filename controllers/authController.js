@@ -140,27 +140,25 @@ export class AuthController {
             const { email } = req.body;
             const user = await User.findOne({ email });
 
-            if (!user) {
-                return res.status(404).json({ message: 'User not found with this email' });
-            }
+            if (user) {
+                //? Genero el token de reseteo
+                const resetToken = crypto.randomBytes(32).toString('hex');
+                user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+                user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; //? 10 minutos
 
-            //? Genero el token de reseteo
-            const resetToken = crypto.randomBytes(32).toString('hex');
-            user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-            user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; //? 10 minutos
+                await user.save();
 
-            await user.save();
+                const resetUrl = `${req.protocol}://${req.get('host')}/auth/reset-password/${resetToken}`;
 
-            const resetUrl = `${req.protocol}://${req.get('host')}/auth/reset-password/${resetToken}`;
-
-            await resend.emails.send({
-                from: "ToDo App SsamuelFernandez <forgotPassword@ssamuelfernandez.net>",
-                to: user.email,
-                subject: 'Password Reset',
-                html: `<p>You are receiving this email because you (or someone else) has requested the reset of a password.</p>
+                await resend.emails.send({
+                    from: "ToDo App SsamuelFernandez <forgotPassword@ssamuelfernandez.net>",
+                    to: user.email,
+                    subject: 'Password Reset',
+                    html: `<p>You are receiving this email because you (or someone else) has requested the reset of a password.</p>
                        <p>Please make a PUT request to the following URL to reset your password:</p>
                        <p><a href="${resetUrl}">${resetUrl}</a></p>`
-            });
+                });
+            }
 
             res.status(200).json({ message: 'Email sent with password reset instructions, you have 10 minutes to change it.' });
         } catch (error) {
