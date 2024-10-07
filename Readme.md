@@ -188,11 +188,19 @@ Permite a los usuarios obtener su perfil basado en el token de autenticación.
 
 `401 Unauthorized`: Token inválido o no proporcionado.
 
+## **Variables de Entorno**
 
+Antes de ejecutar el proyecto, asegúrate de configurar las siguientes variables de entorno. Puedes hacerlo creando un archivo .env en la raíz del proyecto o utilizando tu sistema de gestión de entornos preferido.
 
+`MONGODB_URI`: Dirección de conexión a la base de datos MongoDB.
 
+`SECRET_KEY`: Clave secreta utilizada para encriptación y JWT (o autenticación).
 
+`RESEND_API_KEY`: Clave API para la integración con Resend (envío de correos electrónicos).
 
+`CORS_ORIGINS`: Lista de orígenes permitidos para CORS.
+
+`Encabezado para el resend`: Direccion del dominio que se va a usar.
 
 
 ## **Peticiones a la Api ToDo**
@@ -604,3 +612,43 @@ Elimina una nota específica usando su ID.
   Para acceder a las rutas protegidas, incluye el token JWT en el encabezado `Authorization` de la solicitud. 
   
   El formato del encabezado debe ser `Authorization: Bearer {jwt_token}`.
+
+  ## **Dependencias**
+
+1. `bcryptjs`:
+
+   Librería utilizada para el hashing y verificación de contraseñas. Se usa para encriptar contraseñas de usuarios antes de almacenarlas en la base de datos y para validarlas durante el proceso de autenticación.
+
+2. `cors`:
+
+   Middleware para habilitar y gestionar el CORS (Cross-Origin Resource Sharing), lo que permite que tu API sea accesible desde diferentes dominios o clientes.
+
+3. `dotenv`:
+
+   Herramienta que carga variables de entorno desde un archivo .env a process.env. Esto permite mantener configuraciones sensibles (como claves API y credenciales) fuera del código fuente.
+
+4. `express`:
+
+   Framework web minimalista para Node.js. Facilita la creación de servidores y la gestión de rutas, middlewares, y manejo de solicitudes y respuestas HTTP.
+
+5. `jsonwebtoken`:
+
+   Librería para generar y verificar tokens JWT (JSON Web Tokens), que se utilizan principalmente para autenticar usuarios de manera segura sin necesidad de almacenar sesiones en el servidor.
+
+
+6. `mongodb`:
+
+    Cliente oficial de MongoDB para Node.js. Proporciona métodos para conectarse y realizar operaciones en bases de datos MongoDB.
+
+7. `mongoose`:
+
+    ODM (Object Data Modeling) para MongoDB, que ofrece una abstracción de la base de datos y permite trabajar con datos utilizando esquemas y modelos, facilitando la interacción con MongoDB.
+
+8. `nodemon`:
+
+    Herramienta que reinicia automáticamente el servidor de Node.js cada vez que detecta cambios en los archivos del proyecto. Muy útil durante el desarrollo para mejorar la eficiencia.
+
+
+9. `resend`:
+
+    Cliente de Resend para enviar correos electrónicos mediante la API de Resend. Se utiliza para gestionar notificaciones por correo, como verificaciones de cuentas o restablecimiento de contraseñas.
