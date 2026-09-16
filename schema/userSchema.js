@@ -44,7 +44,7 @@ const userSchema = new mongoose.Schema({
         type: String
     },
     verificationExpires: {
-        type: String
+        type: Date
     },
     createdAt: {
         type: Date,
