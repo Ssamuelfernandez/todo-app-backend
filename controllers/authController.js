@@ -113,7 +113,7 @@ export class AuthController {
         }
     }
 
-    static async verifyToken(req, res) {
+    static async verifyToken(req, res, next) {
         try {
             return res.status(200).json({ valid: true });
         } catch (error) {
