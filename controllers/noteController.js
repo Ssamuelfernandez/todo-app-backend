@@ -60,7 +60,7 @@ export class NoteController {
 
         try {
             //* Llamar al modelo para actualizar la nota
-            const result = await noteModel.patchNotes(id, userId);
+            const result = await noteModel.patchNotes(id, updates, userId);
 
             //* Manejar el caso en el que la nota no se encuentra
             if (result === null) {
