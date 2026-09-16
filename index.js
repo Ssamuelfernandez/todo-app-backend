@@ -27,7 +27,7 @@ app.use(express.json())
 //? Configuración de CORS
 const corsOptions = {
     origin: function (origin, callback) {
-        if (!origin || allowedOrigins.indexOf(origin)) {
+        if (!origin || allowedOrigins.includes(origin)) {
           callback(null, true)
         } else {
           callback(new Error('Not allowed by CORS'))
