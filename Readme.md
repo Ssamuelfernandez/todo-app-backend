@@ -25,13 +25,30 @@ Permite registrar un nuevo usuario en la aplicación.
 **Respuesta Exitosa:**
 ```bash
 {
-  "message": "User registered successfully, please verify your email",
-  "userId": "user_id"
+  "message": "User registered successfully, you have 10 minutes to verify your email"
 }
 ```
 **Errores Comunes:**
 
-`400 Bad Request`: Campos requeridos faltantes o email ya registrado.
+`400 Bad Request`: Campos requeridos faltantes, formato inválido o email ya registrado.
+
+Al registrarse se envía un correo con un enlace de verificación, válido durante 10 minutos. Si el usuario no verifica su cuenta a tiempo, es eliminado automáticamente en el siguiente registro que se procese.
+
+### **Verificar Email**
+
+Verifica la cuenta del usuario a partir del token enviado por correo al registrarse.
+
+- **Endpoint :** `GET /auth/verify-email/:token`
+
+**Respuesta Exitosa:**
+```bash
+{
+  "message": "Email verified successfully"
+}
+```
+**Errores Comunes:**
+
+`400 Bad Request`: Token de verificación inválido o expirado.
 
 ### **Inicio de Sesión**
 
@@ -57,9 +74,9 @@ Es necesario que el usuario haya confirmado el email de verificación de la cuen
 ```
 **Errores Comunes:**
 
-`400 Not Found`: Usuario no encontrado.
+`400 Bad Request`: Credenciales inválidas (email o contraseña incorrectos).
 
-`404 Bad Request`: Credenciales inválidas.
+`403 Forbidden`: El email de la cuenta todavía no ha sido verificado.
 
 ### **Verificar token del usuario**
 
@@ -76,7 +93,11 @@ Permite verificar el token emitido.
 ```
 **Errores Comunes:**
 
-`403 Forbidden`: Token expirado.
+`401 Unauthorized`: No se ha proporcionado el token.
+
+`403 Forbidden`: Token inválido, expirado o revocado (por ejemplo, tras cerrar sesión o cambiar la contraseña).
+
+`404 Not Found`: El usuario asociado al token ya no existe.
 
 ### **Cerrar Sesión**
 
@@ -96,7 +117,7 @@ Permite a los usuarios cerrar sesión. En esta implementación, se actualiza la 
 
 Envía un correo electrónico con un enlace para restablecer la contraseña del usuario.
 
-- **Endpoint :** `GET /auth/forgot-password`
+- **Endpoint :** `POST /auth/forgot-password`
 
 **Cuerpo de Solicitud:**
 
@@ -112,15 +133,13 @@ Envía un correo electrónico con un enlace para restablecer la contraseña del 
 }
 ```
 
-**Errores Comunes:**
-
-`404 Not Found`: Usuario no encontrado con el correo electrónico proporcionado.
+Por seguridad, la respuesta es siempre la misma (200) exista o no una cuenta con ese email, para no revelar qué correos están registrados. El enlace de restablecimiento es válido durante 10 minutos.
 
 ### **Restablecer Contraseña**
 
 Permite a los usuarios restablecer su contraseña utilizando un token enviado por correo electrónico.
 
-- **Endpoint :** `GET /auth/reset-password/:token`
+- **Endpoint :** `PATCH /auth/reset-password/:token`
 
 **Cuerpo de Solicitud:**
 
@@ -132,7 +151,7 @@ Permite a los usuarios restablecer su contraseña utilizando un token enviado po
 **Respuesta Exitosa:**
 ```bash
 {
-  "message": "message": "Password has been reset successfully"
+  "message": "Password has been reset successfully"
 }
 ```
 
@@ -140,11 +159,13 @@ Permite a los usuarios restablecer su contraseña utilizando un token enviado po
 
 `400 Bad Request`: Token inválido o expirado.
 
+Al restablecer la contraseña se invalida cualquier sesión (token JWT) activa emitida previamente.
+
 ### **Cambiar Contraseña**
 
 Permite a los usuarios autenticados cambiar su contraseña actual.
 
-- **Endpoint :** `GET /auth/change-password`
+- **Endpoint :** `PATCH /auth/change-password`
 - **Encabezado de Solicitud :** `Authorization: Bearer {jwt_token}`
 
 **Cuerpo de Solicitud:**
@@ -158,7 +179,7 @@ Permite a los usuarios autenticados cambiar su contraseña actual.
 **Respuesta Exitosa:**
 ```bash
 {
-  "message": "Password changed successfully"
+  "message": "Password has been updated successfully"
 }
 ```
 
@@ -166,7 +187,11 @@ Permite a los usuarios autenticados cambiar su contraseña actual.
 
 `400 Bad Request`: La contraseña actual es incorrecta o los campos no son válidos.
 
-`401 Unauthorized`: El token JWT no es válido o ha expirado.
+`401 Unauthorized`: No se ha proporcionado el token.
+
+`403 Forbidden`: El token JWT no es válido, ha expirado o ha sido revocado.
+
+Al cambiar la contraseña se invalida cualquier sesión (token JWT) activa emitida previamente, incluida la que se usó para hacer el propio cambio.
 
 ### **Obtener Perfil del Usuario**
 
@@ -178,29 +203,45 @@ Permite a los usuarios obtener su perfil basado en el token de autenticación.
 **Respuesta Exitosa:**
 ```bash
 {
+  "_id": "user_id",
   "nickname": "string",
-  "firstName": "string",
+  "name": "string",
+  "surname": "string",
   "email": "string",
+  "isVerified": true,
+  "createdAt": "ISO_date",
   "lastLogin": "ISO_date"
 }
 ```
 **Errores Comunes:**
 
-`401 Unauthorized`: Token inválido o no proporcionado.
+`401 Unauthorized`: No se ha proporcionado el token.
+
+`403 Forbidden`: El token JWT no es válido, ha expirado o ha sido revocado.
 
 ## **Variables de Entorno**
 
 Antes de ejecutar el proyecto, asegúrate de configurar las siguientes variables de entorno. Puedes hacerlo creando un archivo .env en la raíz del proyecto o utilizando tu sistema de gestión de entornos preferido.
 
-`MONGODB_URI`: Dirección de conexión a la base de datos MongoDB.
+`MONGO_URI`: Dirección de conexión a la base de datos MongoDB.
 
-`SECRET_KEY`: Clave secreta utilizada para encriptación y JWT (o autenticación).
+`JWT_SECRET`: Clave secreta utilizada para firmar y verificar los tokens JWT.
 
 `RESEND_API_KEY`: Clave API para la integración con Resend (envío de correos electrónicos).
 
-`CORS_ORIGINS`: Lista de orígenes permitidos para CORS.
+`VERIFY_EMAIL`: Dirección remitente usada para el correo de verificación de cuenta.
 
-`Encabezado para el resend`: Direccion del dominio que se va a usar.
+`FORGOT_PASSWORD`: Dirección remitente usada para el correo de restablecimiento de contraseña.
+
+`FRONTEND_DOMAIN_URL`: URL base del frontend, usada para construir los enlaces de verificación de email y restablecimiento de contraseña, y permitida en CORS.
+
+`FRONTEND_VERCEL_URL`: URL del despliegue del frontend en Vercel permitida en CORS.
+
+`LOCALHOST_URL`: URL local del frontend (desarrollo) permitida en CORS.
+
+`PORT`: Puerto en el que arranca el servidor (por defecto 3000 si no se define).
+
+`NODE_ENV`: Entorno de ejecución. Cuando vale `production`, la API oculta los detalles internos de los errores en las respuestas.
 
 
 ## **Peticiones a la Api ToDo**
@@ -631,24 +672,27 @@ Elimina una nota específica usando su ID.
 
    Framework web minimalista para Node.js. Facilita la creación de servidores y la gestión de rutas, middlewares, y manejo de solicitudes y respuestas HTTP.
 
-5. `jsonwebtoken`:
+5. `express-rate-limit`:
+
+   Middleware que limita el número de peticiones por IP en un periodo de tiempo. Se usa en las rutas de registro, login y recuperación/restablecimiento de contraseña para mitigar ataques de fuerza bruta y abuso en el envío de correos.
+
+6. `jsonwebtoken`:
 
    Librería para generar y verificar tokens JWT (JSON Web Tokens), que se utilizan principalmente para autenticar usuarios de manera segura sin necesidad de almacenar sesiones en el servidor.
 
-
-6. `mongodb`:
+7. `mongodb`:
 
     Cliente oficial de MongoDB para Node.js. Proporciona métodos para conectarse y realizar operaciones en bases de datos MongoDB.
 
-7. `mongoose`:
+8. `mongoose`:
 
     ODM (Object Data Modeling) para MongoDB, que ofrece una abstracción de la base de datos y permite trabajar con datos utilizando esquemas y modelos, facilitando la interacción con MongoDB.
 
-8. `nodemon`:
+9. `nodemon`:
 
     Herramienta que reinicia automáticamente el servidor de Node.js cada vez que detecta cambios en los archivos del proyecto. Muy útil durante el desarrollo para mejorar la eficiencia.
 
 
-9. `resend`:
+10. `resend`:
 
     Cliente de Resend para enviar correos electrónicos mediante la API de Resend. Se utiliza para gestionar notificaciones por correo, como verificaciones de cuentas o restablecimiento de contraseñas.
