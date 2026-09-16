@@ -42,7 +42,7 @@ export class noteModel {
 
     static async getNotesById(id, userId) {
         await invalidObject(id);
-        return await handleDatabaseOperation(() => Note.findById({ _id: id, userId }) || null);
+        return await handleDatabaseOperation(() => Note.findOne({ _id: id, userId }) || null);
     }
 
     static async postNotes(note) {
@@ -53,8 +53,8 @@ export class noteModel {
     static async patchNotes(id, updates, userId) {
         await invalidObject(id);
         updates.updatedAt = new Date();
-        const result = await handleDatabaseOperation(() => 
-            Note.findByIdAndUpdate({ _id: id, userId }, updates, { new: true, runValidators: true })
+        const result = await handleDatabaseOperation(() =>
+            Note.findOneAndUpdate({ _id: id, userId }, updates, { new: true, runValidators: true })
         );
 
         if (!result) {
@@ -65,7 +65,7 @@ export class noteModel {
 
     static async deleteNotes(id, userId) {
         await invalidObject(id);
-        const result = await handleDatabaseOperation(() => Note.findByIdAndDelete({ _id: id, userId }));
+        const result = await handleDatabaseOperation(() => Note.findOneAndDelete({ _id: id, userId }));
 
         if (!result) {
             throw { status: 404, message: 'Note not found or not authorized' };
