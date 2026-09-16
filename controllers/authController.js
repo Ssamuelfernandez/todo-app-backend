@@ -191,6 +191,8 @@ export class AuthController {
             user.password = newPassword;
             user.resetPasswordToken = undefined;
             user.resetPasswordExpires = undefined;
+            //? Invalidar cualquier sesión activa emitida antes del reseteo
+            user.lastLogin = new Date();
 
             await user.save();
 
@@ -215,6 +217,8 @@ export class AuthController {
 
             //? Actualizo a la nueva contraseña
             user.password = newPassword;
+            //? Invalidar cualquier sesión activa emitida antes del cambio
+            user.lastLogin = new Date();
             await user.save();
 
             res.status(200).json({ message: 'Password has been updated successfully' });
